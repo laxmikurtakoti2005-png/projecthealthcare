@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Health Nearby</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:Poppins;
+    background:linear-gradient(135deg,#0f2027,#2c5364);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.container{
+    width:90%;
+    max-width:900px;
+    padding:20px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(20px);
+}
+
+h1{
+    text-align:center;
+}
+
+button{
+    padding:12px;
+    margin:10px;
+    border:none;
+    border-radius:10px;
+    background:#00ffd5;
+    cursor:pointer;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:10px;
+}
+
+.card{
+    background:rgba(255,255,255,0.08);
+    padding:10px;
+    border-radius:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🌍 Nearby Health Finder</h1>
+
+    <div style="text-align:center;">
+        <button onclick="find('hospital')">🏥 Hospitals</button>
+        <button onclick="find('doctor')">👨‍⚕ Doctors</button>
+    </div>
+
+    <div class="grid" id="results"></div>
+</div>
+
+<script>
+const API="http://localhost:8080/api/nearby";
+
+function find(type){
+    navigator.geolocation.getCurrentPosition(async pos=>{
+        const lat=pos.coords.latitude;
+        const lng=pos.coords.longitude;
+
+        const res=await fetch(`${API}?lat=${lat}&lng=${lng}&type=${type}`);
+        const data=await res.json();
+
+        const results=document.getElementById("results");
+        results.innerHTML="";
+
+        data.results.slice(0,6).forEach(place=>{
+            const div=document.createElement("div");
+            div.className="card";
+
+            div.innerHTML=`
+                <h3>${place.name}</h3>
+                <p>⭐ ${place.rating || "N/A"}</p>
+                <p>${place.vicinity}</p>
+            `;
+
+            results.appendChild(div);
+        });
+    });
+}
+</script>
+
+</body>
+</html>
